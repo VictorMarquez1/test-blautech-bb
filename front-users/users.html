@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+	
+	<!-- versión de desarrollo, incluye advertencias de ayuda en la consola -->
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+</head>
+
+	<body class="container bg-white text-center">
+
+		<!-- The core Firebase JS SDK is always required and must be listed first -->
+		<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
+
+		<!-- Add Firebase products that you want to use -->
+		<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-auth.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-firestore.js"></script>
+
+
+		<!-- TODO: Add SDKs for Firebase products that you want to use
+		     https://firebase.google.com/docs/web/setup#available-libraries -->
+		<script>
+		  // Your web app's Firebase configuration
+		  var firebaseConfig = {
+		    apiKey: "AIzaSyBH-cVX9KInem2iY9tSWvEKDDedj4kn52o",
+		    authDomain: "test-blautech-bb.firebaseapp.com",
+		    projectId: "test-blautech-bb",
+		    storageBucket: "test-blautech-bb.appspot.com",
+		    messagingSenderId: "569406324816",
+		    appId: "1:569406324816:web:2dadc18f15e3945da89155"
+		  };
+		  // Initialize Firebase
+		  firebase.initializeApp(firebaseConfig);
+		</script>
+
+
+
+
+
+		<div class="m-5">
+			<div class="p-5">
+				<h3>LISTA DE USUARIOS</h3>
+			</div>
+			<div id="singOut" class="text-right mb-3">
+				<a href="/front-users/addUser.html" class="btn btn-primary mx-2">Agregar usuario</a>
+		      	<button type="button" v-on:click="singOut" id="sign-out" class="btn btn-primary mx-2">Cerrar sesión</button>
+			</div>
+
+			<table class="table" id="usersList">
+			  <thead>
+			    <tr>
+			      <th scope="col">#</th>
+			      <th scope="col">First name</th>
+			      <th scope="col">Last name</th>
+			      <th scope="col">Email</th>
+			      <th scope="col">Action</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr v-for="currency in info">
+			      <td>{{ currency.id }}</td>
+			      <td>{{ currency.first_name }}</td>
+			      <td>{{ currency.second_name }}</td>
+			      <td>{{ currency.email }}</td>
+			      <td>
+			      	<button type="button" v-on:click="detail" id="detail" class="btn btn-info btn-sm" v-bind:id="currency.id">Detail</button>
+			      	<button type="button" v-on:click="edit" id="edit" class="btn btn-primary btn-sm" v-bind:id="currency.id">Edit</button>
+			      	<button type="button" v-on:click="deleteItem" id="deleteItem" class="btn btn-danger btn-sm" v-bind:id="currency.id">Delete</button>
+			      </td>
+			    </tr>
+			  </tbody>
+			</table>
+		</div>
+
+
+
+
+
+
+		<script type="text/javascript">
+
+		      firebase.auth().onAuthStateChanged(function(user) {
+		        
+		        if (user) 
+		        {
+					//console.log( 'Usuario en sesión: '+email );
+		        } 
+		        else 
+		        {
+		          //console.log('Usuario sin sesión');
+		          window.location="http://localhost/front-users/index.html";
+		        }
+		        
+		      });
+
+
+				new Vue({
+
+				  el: '#usersList',
+				  data () {
+				    return {
+				      info: null,
+				      message: null,
+				    }
+				  },
+				  mounted () {
+				    axios
+				      .get('http://localhost/back-users/')
+				      .then(response => {
+				      	this.info = response.data;
+				      })
+				      .catch(error => console.log(error))
+				  },
+				  methods: {
+					    detail: function ( e ) {
+					    	
+					    	//console.log(e.target.id);
+					    	window.location="http://localhost/front-users/viewUser.html?"+e.target.id;
+
+					    },
+					    edit: function ( e ) {
+					    	
+					    	//console.log(e.target.id);
+					    	window.location="http://localhost/front-users/editUser.html?"+e.target.id;
+
+					    },
+					    deleteItem: function ( e ) {
+
+						    axios
+						      .post('http://localhost/back-users/?users/delete/'+e.target.id)
+						      //.then(response => (this.info = response))
+						      .then(response => {
+						      	//console.log(response)
+						      	//this.info = response.data;
+					        	position = this.info.findIndex(obj => obj.id === e.target.id);
+					        	this.info = this.info.filter( function(item, index){ return index != position; } ); 
+
+						      })
+						      .catch(error => console.log(error))
+						      
+
+
+					    },
+
+				  }
+				})
+
+
+
+				new Vue({
+				  el: '#singOut',
+				  methods: {
+				    singOut: function () {
+						if (firebase.auth().currentUser) 
+						{
+						    firebase.auth().signOut();
+						    console.log('Cerrada');
+						}
+						else
+						{
+							console.log('Sin sesión');
+						}
+				    },
+				  }
+				})
+				
+		</script>
+
+
+
+
+
+	</body>
+
+
+</html>
+  
+  
