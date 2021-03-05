@@ -14,7 +14,7 @@ class Mssql
 	{
 		$this->server = 'localhost'; 
 		$this->username = 'root';
-		$this->password = 'UnoMas11##';
+		$this->password = '';
 		$this->database = 'users';
 	}
 	
@@ -24,7 +24,7 @@ class Mssql
 		try {
 		    return new PDO('mysql:host='.$this->server.';dbname='.$this->database, $this->username, $this->password);
 		} catch (PDOException $e) {
-		    print "¡Error!: " . $e->getMessage() . "<br/>";
+		    print "Â¡Error!: " . $e->getMessage() . "<br/>";
 		    die();
 		}
 	}
